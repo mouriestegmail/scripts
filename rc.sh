@@ -1,12 +1,16 @@
 #!/bin/bash
 
-# Проверка, если уже запущено приложение с URL https://app.ringcentral.com/
-if pgrep -f "ringcentral" > /dev/null; then
-    echo "Приложение уже запущено."
-    # Используем wmctrl для активации окна
-    wmctrl -a "RingCentral" || echo "Не удалось активировать окно."
-    exit 0  # Завершаем скрипт, так как приложение уже запущено
+PROFILE_NAME="Default"  # Укажи правильный профиль
+APP_URL="https://app.ringcentral.com/"
+CHROME_CMD="google-chrome --profile-directory=\"$PROFILE_NAME\" --app=$APP_URL"
+
+# Проверяем, запущено ли окно с app.ringcentral.com
+if wmctrl -l | grep -i "app.ringcentral.com" > /dev/null; then
+    echo "app.ringcentral.com уже запущен. Активируем окно."
+    wmctrl -a "app.ringcentral.com"  # Переключаемся на окн
+    exit 0
 fi
 
-# Запуск Chrome в режиме App
-google-chrome --app=https://app.ringcentral.com/ &
+# Если окно не найдено – запускаем Chrome
+eval $CHROME_CMD &
+
