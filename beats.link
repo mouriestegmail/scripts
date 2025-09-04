@@ -1,0 +1,1 @@
+start_time >= now("-2d") and project.prefix = "TBB" and status = "Failed" and review.issue.key = "CNV-75636"

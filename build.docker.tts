@@ -1,0 +1,20 @@
+# --network host  - for vpn
+
+sudo docker run --network host -it -v $(pwd):/work_dir -v ~/.ssh:/home/jenkins/.ssh docker-registry.lab.nordigy.ru:443/telco-ol9-gcc12:cmake-3.22.1 /bin/bash
+
+# for Mac
+# git config --global --add safe.directory /work_dir  
+
+# test dns
+# ccurl -v https://git.ringcentral.com 
+
+cmake -S /work_dir -B /work_dir/cmake-build
+
+cmake --build /work_dir/cmake-build -j $(nproc)
+
+
+
+### tts docker for kuber
+
+docker login docker-registry.int.rclabenv.com
+

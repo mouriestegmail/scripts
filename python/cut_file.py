@@ -48,12 +48,12 @@ def cut_file(fn, time_start, time_dur, out_fn):
                 break
             out.write(line)
 
-dirn = '/home/andreysokolov/project/logs/75636/'
-infn = dirn + 'tel01_1003'
-outfn = dirn + 'cut_tel01.log'
+dirn = '/home/andreysokolov/Documents/logs/CQ_forward/preserve/preserve_clid/tel-02/'
+infn = dirn + 'tel_2025-04-23_2.log'
+outfn = dirn + 'cut_tel02.log'
 cut_file(fn=infn,
-         time_start='02:06:59',
-         time_dur=300,
+         time_start='10:47:00',
+         time_dur=40,
          out_fn=outfn
          )
 
