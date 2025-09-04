@@ -1,6 +1,7 @@
 import re
 import subprocess
 from time import sleep
+import platform
 
 CONFIG_PATH = "/opt/ringcentral/tel/config/tel.conf"
 
@@ -14,11 +15,20 @@ def get_old_ip(path):
     raise ValueError("IPAddress not found in first 20 lines")
 
 def get_tun0_ip():
-    output = subprocess.check_output(['ip', 'addr', 'show', 'tun0'], text=True)
+    output = subprocess.check_output(['ip', 'addr', 'show', 'utun6'], text=True)
     match = re.search(r'inet (\d+\.\d+\.\d+\.\d+)', output)
     if match:
         return match.group(1)
     raise ValueError("IP address for tun0 not found")
+
+import re
+
+def get_utun_ip(interface="utun6"):
+    output = subprocess.check_output(["ifconfig", interface], text=True)
+    match = re.search(r"inet (\d+\.\d+\.\d+\.\d+)", output)
+    if match:
+        return match.group(1)
+    raise ValueError(f"IP address for {interface} not found")
 
 def replace_ip_in_file(path, old_ip, new_ip):
     with open(path, 'r') as f:
@@ -31,8 +41,15 @@ def replace_ip_in_file(path, old_ip, new_ip):
 
 def copy_to_clipboard(text):
     try:
-        subprocess.run(['xsel', '--clipboard', '--input'], input=text.encode(), check=True)
-        subprocess.run(['xsel', '--primary', '--input'], input=text.encode(), check=True)
+        system = platform.system()
+        if system == "Darwin":  # macOS
+            subprocess.run("pbcopy", input=text.encode(), check=True)
+        elif system == "Linux":  # Linux
+            subprocess.run(['xsel', '--clipboard', '--input'], input=text.encode(), check=True)
+            subprocess.run(['xsel', '--primary', '--input'], input=text.encode(), check=True)
+        else:
+            raise NotImplementedError(f"Clipboard copy not implemented for {system}")
+
         print(f"IP copied to clipboard: {text}")
     except Exception as e:
         print(f"Failed to copy to clipboard: {e}")
@@ -40,7 +57,7 @@ def copy_to_clipboard(text):
 
 def main():
     old_ip = get_old_ip(CONFIG_PATH)
-    new_ip = get_tun0_ip()
+    new_ip = get_utun_ip("utun6")
     if old_ip != new_ip:
         count = replace_ip_in_file(CONFIG_PATH, old_ip, new_ip)
         print(f"{count} replaced {old_ip} -> {new_ip}")
